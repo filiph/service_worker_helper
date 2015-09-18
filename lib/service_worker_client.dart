@@ -5,13 +5,7 @@ import 'dart:async';
 
 import 'src/promise.dart';
 import 'src/utils.dart';
-
-class PermissionDeniedError extends Error {
-  final String message;
-  PermissionDeniedError(this.message);
-
-  toString() => "PermissionDeniedError: $message";
-}
+import 'src/errors.dart';
 
 class PushSubscription {
   final js.JsObject object;

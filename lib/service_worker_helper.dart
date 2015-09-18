@@ -5,6 +5,7 @@ import 'dart:js' as js;
 
 import "src/promise.dart";
 import "src/utils.dart";
+import "src/errors.dart";
 
 part "src/service_worker/client.dart";
 part "src/service_worker/clients.dart";

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:dart_service_worker/service_worker_helper.dart';
 import 'package:dart_service_worker/config.dart';
+import 'package:dart_service_worker/src/errors.dart';
 
-// TODO: change
 const String CANONICAL_URL = "https://filip-app.appspot.com/";
 
 class PushMessage {
@@ -13,16 +13,22 @@ class PushMessage {
 }
 
 class MyHelper extends ServiceWorkerHelper {
+  Future notify(PushMessage message) => showNotification(message.message,
+      "To teď řekl Filip.", "/images/filip-192x192.png",
+      "filip-app-notification-tag");
+
   @override
   Future onPushMessage(event) async {
-    final contents = await fetchJson(FIREBASE_LATEST_MESSAGE_JSON);
-    final message = new PushMessage.fromMap(contents);
-
-    // TODO: close old notifications
-
-    return showNotification(message.message, "To teď řekl Filip.",
-        "/images/filip-192x192.png",
-        "filip-app-notification-tag");
+    try {
+      final contents = await fetchJson(FIREBASE_LATEST_MESSAGE_JSON);
+      notify(new PushMessage.fromMap(contents));
+    } on NetworkError catch (e) {
+      // Do nothing.
+      print(e);
+    } on JsonParseError catch (e) {
+      // Do nothing.
+      print(e);
+    }
   }
 
   @override

@@ -13,9 +13,18 @@ abstract class ServiceWorkerHelper {
   }
 
   Future<Object> fetchJson(String path) async {
-    js.JsObject response =
-        await jsPromiseToFuture(js.context.callMethod("fetch", [path]));
-    js.JsObject json = await jsPromiseToFuture(response.callMethod("json"));
+    js.JsObject response;
+    js.JsObject json;
+    try {
+      response = await jsPromiseToFuture(js.context.callMethod("fetch", [path]));
+    } catch (e) {
+      throw new NetworkError(e);
+    }
+    try {
+      json = await jsPromiseToFuture(response.callMethod("json"));
+    } catch (e) {
+      throw new JsonParseError(e);
+    }
     return json;
   }
 
