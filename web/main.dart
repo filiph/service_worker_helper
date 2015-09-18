@@ -15,6 +15,7 @@ import 'package:dart_service_worker/service_worker_client.dart';
 class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
   CheckboxInputElement pushPermissionSwitch;
   Element filipMessageEl;
+  Element filipMessageBubbleEl;
   Element subsPermissionDeniedEl;
   ParagraphElement subsCountMessageEl;
   Firebase fb;
@@ -49,6 +50,7 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     fb = new Firebase(FIREBASE_URL);
     pushPermissionSwitch = querySelector("#push-permission-switch");
     filipMessageEl = querySelector("#filip-message");
+    filipMessageBubbleEl = querySelector("#filip-message-bubble");
     subsPermissionDeniedEl = querySelector("#push-subscription-permission-denied");
     subsCountMessageEl = querySelector("#subscriptions-count-message");
   }
@@ -65,12 +67,7 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     }
   }
 
-  @override
-  void onAfterInit() {
-    updatePushPermissionSwitch();
-    pushPermissionSwitch.disabled = false;
-    pushPermissionSwitch.onChange.listen((handlePushPermissionSwitchClick));
-
+  void _startFirebaseListeners() {
     _subscriptionsCount.onValue.listen((event) {
       int count = event.snapshot.val();
       subsCountMessageEl.text = _createSubsCountMessage(count);
@@ -79,8 +76,26 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     _filipMessage.onValue.listen((event) {
       String msg = event.snapshot.val()["message"];
       filipMessageEl.text = msg == null ? "<teď zrovna nic>" : msg;
-      querySelector("#filip-message-bubble").classes.add("expanded");
+      filipMessageBubbleEl.classes.add("expanded");
     });
+  }
+
+  @override
+  void onInitSuccess() {
+    updatePushPermissionSwitch();
+    pushPermissionSwitch.disabled = false;
+    pushPermissionSwitch.onChange.listen((handlePushPermissionSwitchClick));
+
+    _startFirebaseListeners();
+  }
+
+  @override
+  void onInitFailure(Error e) {
+    querySelector("#unimplemented-error").style.display = "block";
+    print("Service Worker failed to initialize.");
+    print(e);
+
+    _startFirebaseListeners();
   }
 
   @override
@@ -124,14 +139,8 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
 }
 
 Future main() async {
-  try {
-    await new MyServiceWorkerClientHelper().init();
-  } on UnimplementedError catch (e, stacktrace) {
-    querySelector("#home").style.display = "none";
-    querySelector("#unimplemented-error").style.display = "block";
-    print(e);
-    print(stacktrace);
-  }
+  // Start app
+  await new MyServiceWorkerClientHelper().init();
 
   // Upgrade switch
   new JsObject(context['MaterialSwitch'], [querySelector(".mdl-switch")]);
@@ -142,12 +151,6 @@ String _generateCurlCommand(String mergedEndpoint) {
 
   Map payload = {
     "registration_ids": [regId]
-    //    "data": {"message": "Hello world"},
-    //    "notification": {
-    //      "body": "great match",
-    //      "title": "Portugal vs. Denmark",
-    //      "icon": "myicon"
-    //    }
   };
 
   var json = JSON.encode(payload);

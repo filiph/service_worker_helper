@@ -56,14 +56,15 @@ abstract class ServiceWorkerClientHelper {
   Future init({String serviceWorkerUrl: "./service-worker.js",
       String scope: "./"}) async {
     onBeforeInit();
-    await registerServiceWorker(serviceWorkerUrl, scope: scope);
-    // TODO: this can throw PermissionDeniedError - ask user to allow
     try {
+      await registerServiceWorker(serviceWorkerUrl, scope: scope);
       await initialisePushMessageState();
+      onInitSuccess();
     } on PermissionDeniedError catch (e) {
       onPushMessagePermissionDeniedError(e);
+    } catch (e) {
+      onInitFailure(e);
     }
-    onAfterInit();
     return new Future.value();
   }
 
@@ -118,7 +119,8 @@ abstract class ServiceWorkerClientHelper {
   }
 
   void onBeforeInit();
-  void onAfterInit();
+  void onInitSuccess();
+  void onInitFailure(Error e);
   void onPushMessageNoSubscription();
   void onPushMessagePermissionDeniedError(PermissionDeniedError e);
   /// Fired when [subscription] is extracted from Service Worker.
