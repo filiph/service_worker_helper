@@ -1,9 +1,8 @@
-// Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
+// Copyright (c) 2015, Filip Hracek. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 import 'dart:html';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:js';
 
 import 'package:firebase/firebase.dart';
@@ -11,8 +10,7 @@ import 'package:firebase/firebase.dart';
 import 'package:dart_service_worker/config.dart';
 import 'package:dart_service_worker/service_worker_client.dart';
 
-
-class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
+class KsichtApp extends ServiceWorkerClientHelper {
   CheckboxInputElement pushPermissionSwitch;
   Element filipMessageEl;
   Element filipMessageBubbleEl;
@@ -22,6 +20,14 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
 
   void updatePushPermissionSwitch() {
     pushPermissionSwitch.checked = isPushEnabled;
+  }
+
+  void _hideElement(Element el) {
+    el.style.display = "none";
+  }
+
+  void _showElement(Element el) {
+    el.style.display = "block";
   }
 
   Future handlePushPermissionSwitchClick(_) async {
@@ -51,7 +57,8 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     pushPermissionSwitch = querySelector("#push-permission-switch");
     filipMessageEl = querySelector("#filip-message");
     filipMessageBubbleEl = querySelector("#filip-message-bubble");
-    subsPermissionDeniedEl = querySelector("#push-subscription-permission-denied");
+    subsPermissionDeniedEl =
+        querySelector("#push-subscription-permission-denied");
     subsCountMessageEl = querySelector("#subscriptions-count-message");
   }
 
@@ -80,6 +87,10 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     });
   }
 
+  void _upgradeSwitch() {
+    new JsObject(context['MaterialSwitch'], [querySelector(".mdl-switch")]);
+  }
+
   @override
   void onInitSuccess() {
     updatePushPermissionSwitch();
@@ -87,15 +98,17 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
     pushPermissionSwitch.onChange.listen((handlePushPermissionSwitchClick));
 
     _startFirebaseListeners();
+    _upgradeSwitch();
   }
 
   @override
   void onInitFailure(Error e) {
-    querySelector("#unimplemented-error").style.display = "block";
+    _showElement(querySelector("#unimplemented-error"));
     print("Service Worker failed to initialize.");
     print(e);
 
     _startFirebaseListeners();
+    _upgradeSwitch();
   }
 
   @override
@@ -105,18 +118,17 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
 
   @override
   void onPushMessagePermissionDeniedError(_) {
-    subsPermissionDeniedEl.style.display = "block";
+    _showElement(subsPermissionDeniedEl);
   }
 
   @override
   void onPushMessageSubscription(PushSubscription subscription) {
-    print(_generateCurlCommand(subscription.endpoint));
+//    print(_generateCurlCommand(subscription.endpoint));
   }
 
   @override
   onPushMessageSubscribe(PushSubscription subscription) async {
-    subsPermissionDeniedEl.style.display = "none";
-    // TODO: fix - never override user's click by previous action (ted se stane, ze clovek zaklikne "byt v obraze", pak znovu, pak jeste jednou a ten treti zaklik se mu vrati kvuli tomu druhemu...)
+    _hideElement(subsPermissionDeniedEl);
     var subFirebaseRec = _subscriptionSet.child(subscription.subscriptionId);
     var snapshot = await subFirebaseRec.once("value");
     if (!snapshot.exists) {
@@ -127,7 +139,7 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
 
   @override
   onPushMessageUnsubscribe(PushSubscription subscription, bool success) async {
-    subsPermissionDeniedEl.style.display = "none";
+    _hideElement(subsPermissionDeniedEl);
     // Even in case of failure, remove subscription from server.
     var subFirebaseRec = _subscriptionSet.child(subscription.subscriptionId);
     var snapshot = await subFirebaseRec.once("value");
@@ -138,25 +150,7 @@ class MyServiceWorkerClientHelper extends ServiceWorkerClientHelper {
   }
 }
 
-Future main() async {
+void main() {
   // Start app
-  await new MyServiceWorkerClientHelper().init();
-
-  // Upgrade switch
-  new JsObject(context['MaterialSwitch'], [querySelector(".mdl-switch")]);
-}
-
-String _generateCurlCommand(String mergedEndpoint) {
-  String regId = mergedEndpoint.split("/").last;
-
-  Map payload = {
-    "registration_ids": [regId]
-  };
-
-  var json = JSON.encode(payload);
-  var jsonEscaped = json.replaceAll('"', '\\"');
-
-  return 'curl --header "Authorization: key=$API_KEY'
-      '" --header Content-Type:"application/json" '
-      '$GCM_ENDPOINT -d "$jsonEscaped"';
+  new KsichtApp().init();
 }
