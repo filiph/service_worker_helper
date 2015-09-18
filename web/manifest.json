@@ -1,0 +1,14 @@
+{
+  "name": "Filip pušuje notifikace",
+  "short_name": "Filip",
+  "icons": [{
+        "src": "images/filip-192x192.png",
+        "sizes": "192x192"
+      }],
+  "start_url": "./",
+  "display": "standalone",
+  "gcm_sender_id": "1032317024423",
+
+  "//": "gcm_user_visible_only is only needed until Chrome 44 is in stable ",
+  "gcm_user_visible_only": true
+}

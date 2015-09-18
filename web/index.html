@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<!--
+  Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
+  is governed by a BSD-style license that can be found in the LICENSE file.
+-->
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="scaffolded-by" content="https://github.com/google/stagehand">
+  <title>Filipův ksicht</title>
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="images/filip-192x192.png">
+  <meta name="theme-color" content="#1B5E20">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Web Starter Kit">
+  <link rel="apple-touch-icon-precomposed" href="images/filip-114x114.png">
+
+  <!-- Tile icon for Win8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="images/filip-144x144.png">
+  <meta name="msapplication-TileColor" content="#1B5E20">
+
+  <!-- Scripts -->
+  <!-- #dart_concat -->
+  <script async src="firebase-v2.2.9.js"></script>
+  <script async src="mdl-switch.js"></script>
+  <script async src="main.dart.js"></script>
+  <!-- #end_dart_concat -->
+
+  <!--<script async src="main.dart" type="application/dart"></script>-->
+  <!--<script async data-pub-inline src="packages/browser/dart.js"></script>-->
+
+  <!-- CSS -->
+  <link data-pub-inline  rel="stylesheet" href="styles/main.css">
+
+  <!-- Include manifest file in the page -->
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+
+  <header class="app-bar promote-layer">
+    <div class="app-bar-container">
+      <h1 class="logo">Filipův ksicht</h1>
+    </div>
+  </header>
+
+  <main>
+    <div id="home">
+      <div id="filip-says">
+        <div id="filip-message-wrap">
+          <div id="filip-message-bubble">
+            <h2 id="filip-message">&hellip;</h2>
+          </div>
+          <div id="switch-container">
+            <label for="push-permission-switch" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
+              <input type="checkbox" id="push-permission-switch" class="mdl-switch__input" disabled />
+              <span class="mdl-switch__label">chci být v obraze
+                <span id="subscriptions-count-message">(Filipa teď nikdo neposlouchá)</span>
+              </span>
+            </label>
+        </div>
+        </div>
+        <div id="filip-face">
+          <img alt="Filipův ksicht" src="images/filip-square-0.5x.png">
+        </div>
+      </div>
+
+      <p id="push-subscription-permission-denied" style="display: none">
+        Zdá se, že jste pro tuto stránku zakázali notifikace. Pokud si chcete
+        toto demo opravdu užít, klikněte na visací zámek na adresním řádku
+        a změňte nastavení.
+      </p>
+
+
+      <div class="explanation">
+        <h4>Service Worker</h4>
+        <p>Tato stránka se „nainstalovala“ pouhým otevřením. Pravda, umí jenom posílat notifikace. Ale nebyl by problém implementovat i offline funkcionalitu.</p>
+        <p>Pokud i vy chcete své stránce dodat funkcionalitu, kterou tu vidíte, budou vás asi zajímat následující odkazy:</p>
+        <ul>
+          <li><a href="http://www.w3.org/TR/service-workers/">Service Worker</a> na W3C (suché a akademické, ale je to zdrojový dokument)</li>
+          <li><a href="https://developers.google.com/web/updates/2015/03/push-notificatons-on-the-open-web">Service Worker tutoriál</a> (včetně dema a jeho kódu)</li>
+          <li><a href="https://developer.chrome.com/multidevice/android/installtohomescreen">Add to Homescreen tutoriál</a> (důvod, proč si můžete můj ksicht dát na plochu)</li>
+          <li><a href="https://www.firebase.com/">Firebase</a> (důvod, proč se hláška i počet odběratelů updatují v reálném čase)</li>
+          <li><a href="https://www.dartlang.org/">Dart</a> (důvod, proč je zdroják čitelný a nemá callback hell i přes značnou míru asynchronie)</li>
+        </ul>
+        <p class="signature">
+          &mdash; Filip Hráček<br/>
+          <a rel="author" href="https://plus.google.com/u/0/+filiphracek/posts">Google+</a> // <a href="https://twitter.com/filiphracek">Twitter</a>
+        </p>
+      </div>
+    </div>
+
+    <div id="unimplemented-error" style="display: none">
+      <p>
+        Omlouvám se, ale tento konkrétní prohlížeč zatím nepodporuje vše,
+        co toto demo potřebuje. Viz
+        <a href="http://caniuse.com/#search=service%20worker">caniuse.com</a>.
+        A&nbsp;protože je to demo konkrétní funkcionality, nedává moc smysl si
+        pohrávat s progressive enhancement.
+      </p>
+    </div>
+
+    <!--<div id="about" style="display:none">-->
+      <!--<p>-->
+        <!--This is a basic demo HTML app built with Dart. For developers that do-->
+        <!--not want to, or cannot, use polymer.dart, this is an optional starting-->
+        <!--point.-->
+      <!--</p>-->
+      <!--<p>-->
+        <!--This app was generated by <a href="http://stagehand.pub">Stagehand</a>.-->
+      <!--</p>-->
+    <!--</div>-->
+
+    <!--<div class="sass-hidden">-->
+      <!--<p>-->
+        <!--Note: To use Sass with this application, switch the stylesheet-->
+        <!--references in the &lt;head&gt; section and uncomment the sass-->
+        <!--transformer in the pubspec.yaml file.-->
+      <!--</p>-->
+    <!--</div>-->
+  </main>
+
+
+
+</body>
+</html>

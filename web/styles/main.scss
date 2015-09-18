@@ -1,0 +1,251 @@
+/* Copyright (c) 2015, Filip Hracek. All rights reserved. */
+/* Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import "mdl-switch.css";
+@import url(https://fonts.googleapis.com/css?family=Kalam:700&subset=latin,latin-ext);
+
+@mixin transition($transition...) {
+    -moz-transition:    $transition;
+    -o-transition:      $transition;
+    -webkit-transition: $transition;
+    transition:         $transition;
+}
+
+$themeColor: #4CAF50;
+$errorColor: #F44336;
+$warningColor: #FFF59D;
+
+#unimplemented-error {
+  color: $errorColor;
+}
+
+#push-subscription-permission-denied {
+  background: $warningColor;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica", "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400
+}
+
+h1 {
+  font-size: 56px;
+  line-height: 1.35;
+  letter-spacing: -.02em;
+  margin: 24px 0
+}
+
+h4 {
+  font-size: 24px;
+  line-height: 32px;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 24px 0 16px
+}
+
+
+
+.app-bar {
+  display: block;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: $themeColor;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.app-bar-container {
+  display: flex;
+  width: 100%;
+  height: 60px;
+  position: relative;
+  flex-direction: row;
+  margin: 0 auto;
+}
+
+
+.app-bar .logo {
+  flex: 1;
+  font-size: 1.5em;
+  line-height: 60px;
+  margin: 0 16px;
+  padding: 0;
+  color: #fefefe;
+  float: none;
+  max-width: none;
+  font-weight: 300;
+  display: initial;
+}
+
+.app-bar .logo a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: normal;
+}
+
+.promote-layer {
+  /*
+  This may promote the layer to a composited
+  layer.
+
+  Replace with will-change when available
+
+  #perfmatters
+  */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+
+main {
+  margin: 0 auto;
+  /* Height of the header */
+  padding: 60px 16px 16px 16px;
+  min-height: 100%;
+}
+
+#filip-says {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+
+  #filip-message-wrap {
+    flex: 1 1 auto;
+    align-self: center;
+
+    #filip-message-bubble {
+      background: #E8F5E9;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      overflow: hidden;
+
+      max-height: 3em;
+      @include transition(max-height 0.2s ease-out);
+
+      &.expanded {
+        max-height: 99px;
+      }
+
+      @media all and (min-width: 990px) {
+        padding: 10px 30px;
+      }
+
+      #filip-message {
+        font-size: 1.2em;
+        font-family: "Kalam", "Roboto","Helvetica","Arial",sans-serif;
+        line-height: 1.6em;
+        padding: 0;
+        margin: 0;
+
+        @media all and (min-width: 990px) {
+          font-size: 2em;
+        }
+      }
+    }
+
+    #switch-container {
+      color: rgba(0, 0, 0, 0.5);
+      padding: 0 20px 0 10px;
+
+      @media all and (min-width: 990px) {
+        padding: 0 20px;
+      }
+
+      label > span {
+        font-size: 1em;
+        line-height: 1.2em;
+
+        @media all and (min-width: 990px) {
+          font-size: 1.2em;
+        }
+      }
+
+    }
+  }
+
+  #filip-face {
+    //flex: 0 2 auto;
+    max-width: 40%;
+    align-self: center;
+
+    img {
+      max-width:100%;
+      max-height:100%;
+    }
+  }
+}
+
+.explanation {
+  margin-top: 80px;
+  color: #999;
+
+  h3 {
+    font-size: 1.4em;
+  }
+
+  .signature {
+    text-align: right;
+  }
+
+  a {
+    color: $themeColor;
+    text-decoration: none;
+  }
+}
+
+
+
+
+/** Larger Screens - desktops and tablets **/
+@media all and (min-width: 990px) {
+  .app-bar {
+    position: relative;
+  }
+
+  .app-bar-container {
+    display: block;
+    height: 130px;
+    max-width: 864px;
+    padding: 0 0;
+    box-sizing: border-box;
+    background-color: $themeColor;
+  }
+
+  .app-bar .logo {
+    float: left;
+    margin: 0;
+    padding: 0;
+    line-height: 130px;
+    font-size: 46px;
+  }
+
+  .app-bar::after {
+    content: ' ';
+    display: block;
+    height: 0;
+    overflow: hidden;
+    clear: both;
+  }
+
+  main {
+    max-width: 864px;
+    padding-top: 0;
+    min-height: initial;
+  }
+
+  body {
+    overflow-y: scroll;
+  }
+}

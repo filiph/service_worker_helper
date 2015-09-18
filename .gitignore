@@ -1,0 +1,12 @@
+.buildlog
+.DS_Store
+.idea
+.packages
+.pub/
+build/
+packages
+pubspec.lock
+lib/config.dart
+web/main.dart.js
+web/main.dart.js.map
+web/main.js

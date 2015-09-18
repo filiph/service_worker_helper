@@ -1,0 +1,32 @@
+name: 'dart_service_worker'
+version: 0.0.1
+description: >
+  A mobile-friendly web app with routing, responsive CSS, and (optional) Sass
+  support.
+#author: Your Name <email@example.com>
+#homepage: https://www.example.com
+
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+
+dependencies:
+  browser: '>=0.10.0 <0.11.0'
+  firebase: "^0.6.3"
+  sass: '>=0.4.0 <0.5.0'
+  script_inliner: "^1.0.0"
+  dart_to_js_script_rewriter: '^0.1.0'
+
+dev_dependencies:
+  console: "^2.2.3"
+  http: any
+  barback: "^0.15.2"
+  uuid: "0.5.0"
+  path: any
+
+transformers:
+#- dart_to_js_script_rewriter
+- sass:
+    style: compressed
+- $dart2js
+- dart_service_worker
+- script_inliner
