@@ -2,7 +2,7 @@
 /* Use of this source code is governed by a BSD-style */
 /* license that can be found in the LICENSE file. */
 
-@import "mdl-switch.css";
+@import "mdl-switch";
 @import "flexbox";
 @import url(https://fonts.googleapis.com/css?family=Kalam:700&subset=latin,latin-ext);
 
@@ -16,10 +16,6 @@
 $themeColor: #4CAF50;
 $errorColor: #F44336;
 $warningColor: #FFF59D;
-
-#unimplemented-error {
-  color: $errorColor;
-}
 
 #push-subscription-permission-denied {
   background: $warningColor;
@@ -184,6 +180,11 @@ main {
       max-height:100%;
     }
   }
+}
+
+#unimplemented-error {
+  margin-top: 50px;
+  color: $errorColor;
 }
 
 .explanation {
