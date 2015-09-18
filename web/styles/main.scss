@@ -3,6 +3,7 @@
 /* license that can be found in the LICENSE file. */
 
 @import "mdl-switch.css";
+@import "flexbox";
 @import url(https://fonts.googleapis.com/css?family=Kalam:700&subset=latin,latin-ext);
 
 @mixin transition($transition...) {
@@ -66,17 +67,16 @@ h4 {
 }
 
 .app-bar-container {
-  display: flex;
+  @extend %flexbox;
   width: 100%;
   height: 60px;
   position: relative;
-  flex-direction: row;
   margin: 0 auto;
 }
 
 
 .app-bar .logo {
-  flex: 1;
+  @include flex(1);
   font-size: 1.5em;
   line-height: 60px;
   margin: 0 16px;
@@ -118,11 +118,11 @@ main {
 #filip-says {
   margin-top: 20px;
   margin-bottom: 20px;
-  display: flex;
+  @extend %flexbox;
 
   #filip-message-wrap {
-    flex: 1 1 auto;
-    align-self: center;
+    @include flex(1 1 auto);
+    @include align-self(center);
 
     #filip-message-bubble {
       background: #E8F5E9;
@@ -176,7 +176,6 @@ main {
   }
 
   #filip-face {
-    //flex: 0 2 auto;
     max-width: 40%;
     align-self: center;
 
