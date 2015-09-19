@@ -27,7 +27,12 @@ Future main(List<String> args) async {
 
   replaceLine("Contacting server.");
   Map subsMap = await fb.get(Uri.parse("$FIREBASE_URL/subscriptionSet.json"));
-  var subs = subsMap.keys.toList(growable: false);
+  List subs;
+  try {
+    subs = subsMap.keys.toList(growable: false);
+  } on NoSuchMethodError {
+    subs = [];
+  }
 
   replaceLine("Got ${subs.length} subscriptions. Updating count.");
   await fb.put(Uri.parse("$FIREBASE_URL/subscriptionsCount.json"), subs.length);
@@ -35,6 +40,11 @@ Future main(List<String> args) async {
   replaceLine("Updating message.");
   var msgPayload = {"message": args.join(" ")};
   await fb.put(Uri.parse("$FIREBASE_URL/latestMessage.json"), msgPayload);
+
+  if (subs.isEmpty) {
+    print("\nNo subs. Exiting.");
+    return;
+  }
 
   replaceLine("Contacting GCM server.");
   var payload = {"registration_ids": subs};
