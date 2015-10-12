@@ -1,5 +1,5 @@
 name: 'dart_service_worker'
-version: 0.0.2
+version: 0.0.3
 description: >
   A simple helper package for Service Worker. Includes an example web app.
 author: Filip Hracek <filip.hracek@gmail.com>
