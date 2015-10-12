@@ -64,11 +64,18 @@ class ServiceWorkerManager {
   ///
   /// Throws an [UnsupportedFeatureError] if Service Worker isn't supported.
   Future registerServiceWorker(
-      {String url: "./service-worker.js", String scope: "./"}) {
+      {String url: "./service-worker.js", String scope: "./"}) async {
     _assertServiceWorkerSupportOrThrow();
     var opts = createJsOptionsMap({"scope": scope});
     js.JsObject serviceWorker = _context['navigator']['serviceWorker'];
-    return jsPromiseToFuture(serviceWorker.callMethod("register", [url, opts]));
+    try {
+      var result = await jsPromiseToFuture(serviceWorker.callMethod("register",
+          [url, opts]));
+      return result;
+    } catch (e) {
+      throw wrapServiceWorkerError(e, "Error when registering Service Worker"
+          " at $url");
+    }
   }
 
   Future _getServiceWorkerRegistration() =>
@@ -155,7 +162,7 @@ class ServiceWorkerManager {
         throw new PermissionDeniedError("Can't create new push subscription"
             " when notification is denied. \n$e");
       } else {
-        throw e;
+        throw wrapServiceWorkerError(e);
       }
     }
   }

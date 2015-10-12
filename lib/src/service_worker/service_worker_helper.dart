@@ -18,7 +18,7 @@ abstract class ServiceWorkerHelper {
     try {
       response = await jsPromiseToFuture(js.context.callMethod("fetch", [path]));
     } catch (e) {
-      throw new NetworkError(e);
+      throw wrapServiceWorkerError(e);
     }
     try {
       json = await jsPromiseToFuture(response.callMethod("json"));

@@ -1,5 +1,5 @@
 name: 'dart_service_worker'
-version: 0.0.3
+version: 0.0.5
 description: >
   A simple helper package for Service Worker. Includes an example web app.
 author: Filip Hracek <filip.hracek@gmail.com>
@@ -25,8 +25,8 @@ dev_dependencies:
 
 transformers:
 #- dart_to_js_script_rewriter
-- sass:
-    style: compressed
-- $dart2js
-- dart_service_worker
-- script_inliner
+#- sass:
+#    style: compressed
+#- $dart2js
+#- dart_service_worker
+#- script_inliner

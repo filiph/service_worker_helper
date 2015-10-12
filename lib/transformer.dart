@@ -4,13 +4,13 @@ import 'package:path/path.dart' as path;
 import 'package:barback/barback.dart';
 import 'package:uuid/uuid.dart';
 
-class ServiceWorkerJavaScriptTransformer extends Transformer {
+class ServiceWorkerJavaScriptTransformer extends Transformer
+    implements DeclaringTransformer {
   ServiceWorkerJavaScriptTransformer.asPlugin();
 
   Future<bool> isPrimary(AssetId id) {
-    return new Future.value(id.path.endsWith("web/service-worker.dart"));
+    return new Future.value(id.path.endsWith("service-worker.dart"));
   }
-
 
   String _produceServiceWorkerJavaScriptFile() {
     String hash = uuid.v1();
@@ -21,11 +21,19 @@ class ServiceWorkerJavaScriptTransformer extends Transformer {
     // Copy service-worker.dart verbatim.
     var primaryId = transform.primaryInput.id;
     transform.addOutput(
-    new Asset.fromStream(primaryId, transform.primaryInput.read()));
+        new Asset.fromStream(primaryId, transform.primaryInput.read()));
     // Create the js file.
     var jsId = primaryId.changeExtension(".js");
     var content = _produceServiceWorkerJavaScriptFile();
     transform.addOutput(new Asset.fromString(jsId, content));
+  }
+
+  @override
+  declareOutputs(DeclaringTransform transform) {
+    var primaryId = transform.primaryId;
+    transform.declareOutput(primaryId);
+    var jsId = primaryId.changeExtension(".js");
+    transform.declareOutput(jsId);
   }
 
   final uuid = new Uuid();
@@ -51,7 +59,6 @@ self.addEventListener('notificationclick', function(event) {
   """;
 }
 
-
 class ConcatTransformer extends AggregateTransformer {
   ConcatTransformer.asPlugin();
 
@@ -72,7 +79,6 @@ class ConcatTransformer extends AggregateTransformer {
       else if (input.id.extension == ".js") jsAssets.add(input);
     }
 
-
     for (var htmlAsset in htmlAssets) {
       var html = await htmlAsset.readAsString();
 
@@ -82,7 +88,8 @@ class ConcatTransformer extends AggregateTransformer {
 
       if (start == -1 || end == -1) {
         // No concat.
-        transform.addOutput(new Asset.fromStream(htmlAsset.id, htmlAsset.read()));
+        transform
+            .addOutput(new Asset.fromStream(htmlAsset.id, htmlAsset.read()));
         continue;
       }
 
@@ -94,14 +101,16 @@ class ConcatTransformer extends AggregateTransformer {
       htmlBuffer.write(html.substring(0, start + CONCAT_START.length));
       htmlBuffer.write("<script defer src=\"$combinedUrl\"></script>");
       htmlBuffer.write(html.substring(end + CONCAT_END.length));
-      transform.addOutput(new Asset.fromString(htmlAsset.id, htmlBuffer.toString()));
+      transform
+          .addOutput(new Asset.fromString(htmlAsset.id, htmlBuffer.toString()));
 
       var scriptAssets = new List<Asset>();
       var scriptsContent = html.substring(start + CONCAT_START.length, end);
       _scriptTagMatch.allMatches(scriptsContent).forEach((match) {
         var tag = match.group(0);
         var srcMatch = _srcInTagMatch.allMatches(tag).single;
-        var src = srcMatch.group(2) != null ? srcMatch.group(2) : srcMatch.group(3);
+        var src =
+            srcMatch.group(2) != null ? srcMatch.group(2) : srcMatch.group(3);
         assert(src != null);
         var canonicalPath = path.url.join(transform.key, src);
 //        print("-- ${htmlAsset.id.path} -- ");
@@ -117,7 +126,8 @@ class ConcatTransformer extends AggregateTransformer {
         jsBuffer.write(content);
       }
 
-      transform.addOutput(new Asset.fromString(combinedId, jsBuffer.toString()));
+      transform
+          .addOutput(new Asset.fromString(combinedId, jsBuffer.toString()));
     }
   }
 
