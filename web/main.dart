@@ -8,10 +8,21 @@ import 'dart:js';
 import 'package:firebase/firebase.dart';
 
 import 'package:dart_service_worker/config.dart';
-import 'package:dart_service_worker/service_worker_client.dart';
+import 'package:dart_service_worker/service_worker_manager.dart';
 
-class KsichtApp extends ServiceWorkerClientHelper {
-  CheckboxInputElement pushPermissionSwitch;
+class MaterialSwitch {
+  final JsObject jsObject;
+  MaterialSwitch(this.jsObject);
+
+  void on() => jsObject.callMethod("on");
+  void off() => jsObject.callMethod("off");
+
+  bool get checked => jsObject['inputElement_']['checked'];
+}
+
+class KsichtApp {
+  CheckboxInputElement pushPermissionSwitchEl;
+  MaterialSwitch pushPermissionSwitch;
   Element filipMessageEl;
   Element filipMessageBubbleEl;
   Element subsPermissionDeniedEl;
@@ -19,7 +30,16 @@ class KsichtApp extends ServiceWorkerClientHelper {
   Firebase fb;
 
   void updatePushPermissionSwitch() {
-    pushPermissionSwitch.checked = isPushEnabled;
+    if (pushPermissionSwitch == null) {
+      // Switch not yet upgraded to Material Design.
+      pushPermissionSwitchEl.checked = _sw.isPushEnabled;
+      return;
+    }
+    if (_sw.isPushEnabled) {
+      pushPermissionSwitch.on();
+    } else {
+      pushPermissionSwitch.off();
+    }
   }
 
   void _hideElement(Element el) {
@@ -31,12 +51,22 @@ class KsichtApp extends ServiceWorkerClientHelper {
   }
 
   Future handlePushPermissionSwitchClick(_) async {
-    // TODO: dim screen as per guidelines
-    if (!isPushEnabled) {
-      await subscribe();
+    if (!_sw.isPushEnabled) {
+      // TODO: dim screen as per guidelines
+      try {
+        var sub = await _sw.createPushSubscription();
+        onPushMessageSubscribe(sub);
+      } on PermissionDeniedError catch (e) {
+        onPushMessagePermissionDeniedError(e);
+      } catch (e) {
+        print("Something went wrong: $e");  // TODO: show to user?
+      }
       updatePushPermissionSwitch();
     } else {
-      await unsubscribe();
+      var optionalSubscription = await _sw.removePushSubscription();
+      if (optionalSubscription.isPresent) {
+        onPushMessageUnsubscribe(optionalSubscription.value);
+      }
       updatePushPermissionSwitch();
     }
   }
@@ -51,15 +81,36 @@ class KsichtApp extends ServiceWorkerClientHelper {
     });
   }
 
-  @override
-  void onBeforeInit() {
-    fb = new Firebase(FIREBASE_URL);
-    pushPermissionSwitch = querySelector("#push-permission-switch");
+  final ServiceWorkerManager _sw = new ServiceWorkerManager();
+
+  getDomElements() {
+    pushPermissionSwitchEl = querySelector("#push-permission-switch");
     filipMessageEl = querySelector("#filip-message");
     filipMessageBubbleEl = querySelector("#filip-message-bubble");
     subsPermissionDeniedEl =
         querySelector("#push-subscription-permission-denied");
     subsCountMessageEl = querySelector("#subscriptions-count-message");
+  }
+
+  init() async {
+    fb = new Firebase(FIREBASE_URL);
+    getDomElements();
+
+    try {
+      await _sw.registerServiceWorker();
+      var sub = await _sw.getCurrentPushSubscription();
+      if (sub.isPresent) {
+        print("We have a subscription.");
+      } else {
+        print("There's currently no subscription.");
+      }
+      onInitDone();
+    } on PermissionDeniedError catch (e) {
+      onPushMessagePermissionDeniedError(e);
+      onInitDone();
+    } catch (e) {
+      onInitFailure(e);
+    }
   }
 
   String _createSubsCountMessage(int count) {
@@ -88,20 +139,20 @@ class KsichtApp extends ServiceWorkerClientHelper {
   }
 
   void _upgradeSwitch() {
-    new JsObject(context['MaterialSwitch'], [querySelector(".mdl-switch")]);
+    pushPermissionSwitch = new MaterialSwitch(
+        new JsObject(context['MaterialSwitch'], [querySelector(".mdl-switch")])
+    );
   }
 
-  @override
-  void onInitSuccess() {
+  void onInitDone() {
     updatePushPermissionSwitch();
-    pushPermissionSwitch.disabled = false;
-    pushPermissionSwitch.onChange.listen((handlePushPermissionSwitchClick));
+    pushPermissionSwitchEl.disabled = false;
+    pushPermissionSwitchEl.onChange.listen((handlePushPermissionSwitchClick));
 
     _startFirebaseListeners();
     _upgradeSwitch();
   }
 
-  @override
   void onInitFailure(Error e) {
     _showElement(querySelector("#unimplemented-error"));
     print("Service Worker failed to initialize.");
@@ -111,22 +162,10 @@ class KsichtApp extends ServiceWorkerClientHelper {
     _upgradeSwitch();
   }
 
-  @override
-  void onPushMessageNoSubscription() {
-    print("onPushMessageNoSubscription");
-  }
-
-  @override
   void onPushMessagePermissionDeniedError(_) {
     _showElement(subsPermissionDeniedEl);
   }
 
-  @override
-  void onPushMessageSubscription(PushSubscription subscription) {
-//    print(_generateCurlCommand(subscription.endpoint));
-  }
-
-  @override
   onPushMessageSubscribe(PushSubscription subscription) async {
     _hideElement(subsPermissionDeniedEl);
     var subFirebaseRec = _subscriptionSet.child(subscription.subscriptionId);
@@ -137,8 +176,7 @@ class KsichtApp extends ServiceWorkerClientHelper {
     }
   }
 
-  @override
-  onPushMessageUnsubscribe(PushSubscription subscription, bool success) async {
+  onPushMessageUnsubscribe(PushSubscription subscription) async {
     _hideElement(subsPermissionDeniedEl);
     // Even in case of failure, remove subscription from server.
     var subFirebaseRec = _subscriptionSet.child(subscription.subscriptionId);

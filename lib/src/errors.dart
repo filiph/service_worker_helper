@@ -8,6 +8,13 @@ class PermissionDeniedError extends Error {
   toString() => "PermissionDeniedError: $message";
 }
 
+class UnsupportedFeatureError extends Error {
+  final String message;
+  UnsupportedFeatureError(this.message);
+
+  toString() => "UnsupportedFeatureError: $message";
+}
+
 class NetworkError extends Error {
   final String message;
   NetworkError(this.message);
