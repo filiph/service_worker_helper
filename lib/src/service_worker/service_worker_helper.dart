@@ -37,6 +37,24 @@ abstract class ServiceWorkerHelper {
         selfRegistration.callMethod('showNotification', [title, opts]));
   }
 
+  /// Access PushSubscription from inside the service worker.
+  Future<Optional<PushSubscription>> getCurrentPushSubscription() async {
+    // registration.pushManager.getSubscription().then(function(subscription) {
+    //   console.log("got subscription id: ", subscription.endpoint)
+    // });
+    try {
+      var selfRegistration = _context['self']['registration'];
+      var pushManager = selfRegistration["pushManager"];
+      var jsSubscription = await jsPromiseToFuture(
+          pushManager.callMethod("getSubscription"));
+
+      var subscription = new PushSubscription(jsSubscription);
+      return new Optional.of(subscription);
+    } catch (e) {
+      return new Optional.absent();
+    }
+  }
+
   /// Called when we receive a push message. Returns a JavaScript promise that
   /// resolves when work is done so that Service Worker stays alive.
   js.JsObject _handlePushMessage(event) {
