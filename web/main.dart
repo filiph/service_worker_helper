@@ -64,9 +64,9 @@ class KsichtApp {
       updatePushPermissionSwitch();
     } else {
       var optionalSubscription = await _sw.removePushSubscription();
-      if (optionalSubscription.isPresent) {
-        onPushMessageUnsubscribe(optionalSubscription.value);
-      }
+      optionalSubscription.ifPresent((sub) {
+        onPushMessageUnsubscribe(sub);
+      });
       updatePushPermissionSwitch();
     }
   }
