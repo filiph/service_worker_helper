@@ -3,47 +3,13 @@ library service_worker_client;
 import 'dart:js' as js;
 import 'dart:async';
 
-import 'src/promise.dart';
-import 'src/utils.dart';
-import 'src/errors.dart';
-export 'src/errors.dart';
 import 'package:quiver/core.dart';
 
-class PushSubscription {
-  final js.JsObject jsObject;
-
-  PushSubscription(this.jsObject);
-
-  String get endpoint {
-    String endpoint = jsObject['endpoint'];
-
-    // Make sure we only mess with GCM
-    if (!endpoint.startsWith('https://android.googleapis.com/gcm/send')) {
-      return endpoint;
-    }
-
-    if (jsObject.hasProperty("subscriptionId")) {
-      String subscriptionId = jsObject["subscriptionId"];
-      // Chrome 42 + 43 will not have the subscriptionId attached
-      // to the endpoint.
-      if (!endpoint.contains(subscriptionId)) {
-        endpoint = endpoint + "/" + subscriptionId;
-      }
-    }
-    return endpoint;
-  }
-
-  String get subscriptionId {
-    return endpoint.split("/").last;
-  }
-
-  Future unsubscribe() {
-    return jsPromiseToFuture(jsObject.callMethod("unsubscribe"));
-  }
-
-  toString() =>
-      "Subscription<...${subscriptionId.substring((subscriptionId.length * 3 / 4).round())}>";
-}
+import 'package:dart_service_worker/src/promise.dart';
+import 'package:dart_service_worker/src/js_interop_utils.dart';
+import 'package:dart_service_worker/src/errors.dart';
+export 'package:dart_service_worker/src/errors.dart';
+import 'package:dart_service_worker/src/push_subscription.dart';
 
 class ServiceWorkerManager {
   final js.JsObject _context;
