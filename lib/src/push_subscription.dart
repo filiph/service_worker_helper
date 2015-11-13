@@ -8,9 +8,18 @@ import 'package:dart_service_worker/src/promise.dart';
 class PushSubscription {
   final js.JsObject jsObject;
 
-  PushSubscription(this.jsObject);
+  PushSubscription(this.jsObject) {
+    if (jsObject == null) {
+      throw new ArgumentError("Provided PushSubscription JS object cannot "
+          "be null.");
+    }
+  }
 
   String get endpoint {
+    if (!jsObject.hasProperty("endpoint")) {
+      throw new StateError("PushSubscription has null endpoint");
+    }
+
     String endpoint = jsObject['endpoint'];
 
     // Make sure we only mess with GCM

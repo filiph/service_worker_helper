@@ -6,6 +6,7 @@ abstract class ServiceWorkerHelper {
   Clients _clients;
 
   Clients get clients => _clients;
+  js.JsObject get registration => _context['self']['registration'];
 
   ServiceWorkerHelper([js.JsObject context])
       : _context = context != null ? context : js.context {
@@ -30,11 +31,31 @@ abstract class ServiceWorkerHelper {
 
   Future showNotification(String title, String body, String icon, String tag) {
     // self.registration.showNotifcation()
-    var selfRegistration = _context['self']['registration'];
-    var opts = createJsOptionsMap({"body": body, "icon": icon, "tag": tag});
+    var options = createJsOptionsMap({"body": body, "icon": icon, "tag": tag});
 
     return jsPromiseToFuture(
-        selfRegistration.callMethod('showNotification', [title, opts]));
+        registration.callMethod('showNotification', [title, options]));
+  }
+
+  Future<List<Notification>> getNotifications({String tag}) async {
+    // if (self.registration.getNotifications) {
+    //   return self.registration.getNotifications(notificationFilter)
+    //   .then(function(notifications) {
+    //   });
+    // }
+
+    var options = createJsOptionsMap({"tag": tag});
+    var jsNotifications;
+    try {
+      jsNotifications = await jsPromiseToFuture(
+          registration.callMethod('getNotifications', [options])
+      );
+    } catch (e) {
+      print(e);
+      return const [];
+    }
+    if (jsNotifications == null) return const [];
+    return (jsNotifications as List<js.JsObject>).map((n) => new Notification(n));
   }
 
   /// Access PushSubscription from inside the service worker.

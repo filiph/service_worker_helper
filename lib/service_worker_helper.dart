@@ -12,4 +12,5 @@ import 'package:dart_service_worker/src/push_subscription.dart';
 
 part "src/service_worker/client.dart";
 part "src/service_worker/clients.dart";
+part "src/service_worker/notification.dart";
 part "src/service_worker/service_worker_helper.dart";
